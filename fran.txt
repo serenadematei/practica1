@@ -1,0 +1,165 @@
+SELECT descripcion as producto, precio as precioCosto , (precio*1.21) as precioIVA 
+FROM productos BB
+
+SELECT apellido, nombre, (), (2023-09-fecha_nacimiento)
+
+SELECT * from pedidos WHERE DATE_FORMAT(fecha_pedido,'%m')=03 ORDER BY fecha_pedido
+
+SELECT * from oficinas where cod_director=null
+
+SELECT * from productos where MIN(precio)
+
+select cod_empleado from datos_contratos order by cuota DESC limit 3
+
+SELECT p.descripcion as producto, p.stock_cantidad as stock, f.razon_social
+from productos as p, fabricantes as f,
+where p.cod_fabricante = f.cod_fabricante
+order by razon_social, stock
+
+SELECT p.cod_pedido, p.fecha_pedido, e.apellido, c.razon_social
+FROM pedidos as p, empleados as e, clientes as c 
+WHERE p.cod_empleado = e.cod_empleado && p.cod_cliente = c.cod_cliente
+GROUP BY cod_pedido;
+
+
+SELECT e.apellido, dc.cuota, o.descripcion as oficina
+FROM empleados as e, datos_contratos as dc, oficinas as o
+WHERE e.cod_oficina = o.cod_oficina AND e.cod_empleado = dc.cod_empleado
+ORDER BY cuota desc
+
+SELECT distinct razon_social from clientes
+where cod_cliente in (SELECT cod_cliente from PEDIDOS where DATE_FORMAT(fecha_pedido,'%m')=04))
+
+SELECT DISTINCT descripcion from productos where cod_producto in
+(SELECT cod_producto from detallespedidos where cod_pedido in 
+(SELECT cod_pedido from pedidos where DATE_FORMAT(fecha_pedido,'%m')=03))
+
+
+SELECT * FROM empleados where cod_empleado IN
+(SELECT cod_empleado from datos_contratos WHERE YEAR(CURRENT_DATE)-YEAR(fecha_contrato) >= 10)
+order by (YEAR(CURRENT_DATE)-YEAR(fecha_contrato)) desc
+
+SELECT * from clientes where cod_lista in (SELECT cod_lista where descripcion = 'Lista 1')
+
+8)
+SELECT p.descripcion FROM productos
+as p where p.cod_producto IN (SELECT cod_producto from detallespedidos where cod_pedido in (SELECT cod_pedido from pedidos where cod_cliente in (SELECT cod_cliente from clientes order by clientes.razon_social) ))
+ ORDER BY p.descripcion;
+ 
+ SELECT DISTINCT C.razon_social AS razon_social_cliente, P.descripcion AS descripcion_producto
+FROM CLIENTES AS C
+JOIN PEDIDOS AS Pd ON C.cod_cliente = Pd.cod_cliente
+JOIN DETALLES_PEDIDOS AS Dp ON Pd.cod_pedido = Dp.cod_pedido
+JOIN PRODUCTOS AS P ON Dp.cod_producto = P.cod_producto
+ORDER BY C.razon_social, P.descripcion;
+}
+
+
+
+
+
+
+
+
+
+9) 
+SELECT P.descripcion AS 
+
+producto, 
+       (P.punto_reposicion - P.stock_cantidad) AS cantidad_a_comprar, 
+       F.razon_social AS razon_social_fabricante
+       from productos as P
+       join fabricantes as F ON P.cod_fabricante = F.cod_fabricante
+       where P.stock_cantidad < P.punto_reposicion
+       ORDER BY F.razon_social, P.descripcion;
+
+
+
+10)
+SELECT * from empleados WHERE cod_empleado in (SELECT distinct cod_empleado from datos_contratros where cuota < 1500 OR cuota > 1800)
+
+
+
+
+
+Ejercicios:
+1) Cuáles tablas contienen la columna LOCALIDAD?
+SELECT DISTINCT table_name FROM information_schema.columns WHERE column_name = 'LOCALIDAD' AND table_schema = 'bbdd';
+2) Cuántas columnas tiene la tabla PRODUCTOS?
+SELECT COUNT(*) AS cantidad_de_columnas FROM information_schema.columns WHERE table_name = 'PRODUCTOS' AND table_schema = 'bbdd';
+
+3) Obtener una lista de todos los usuarios dueños de por lo menos una tabla, junto con el
+número de tablas que le pertenecen a cada uno.
+
+SELECT user AS usuario, COUNT(*) AS cantidad_de_tablas FROM mysql.db WHERE db = 'bbdd' GROUP BY usuario HAVING COUNT(*) > 0;
+
+
+4) Obtener una lista de los nombres de todas las tablas que tienen por lo menos un
+índice.
+
+SELECT DISTINCT table_name FROM information_schema.statistics WHERE table_schema = 'bbdd';
+
+
+
+1) Una base de datos hospitalaria contiene las siguientes relaciones:
+PACIENTES (CODIGO-PAC, APELLIDO-PAC, EDAD) subrayar codigo-pac
+MEDICAMENTOS (CODIGO-MED, PRECIO-UNITARIO) subrayar codigo-med
+GASTOS (CODIGO-PAC, CODIGO-MED)  astericos debajo de ambos
+Indicar las claves primarias y claves ajenas de cada relación.
+
+
+2) Dadas las siguientes relaciones:
+CURSOS (NUMCURSO, TITULO) subrayar numcurso
+OFRECIMIENTOS (NUMCURSO, NUMOFR, FECHA, AULA) subrayar numofr, asterisco en numcurso
+PROFESORES (NUMCURSO, NUMOFR, NUMEMP) asteriscos en numcurso,numofr, numemp
+ESTUDIANTES (NUMCURSO, NUMOFR, NUMEMP, CALIFICACION) asteriscos en numcruso, numofr, numemp
+EMPLEADOS (NUMEMP, EMPLE-NOMBRE, PUESTO) subrayar nuemp.
+Indicar las claves primarias y claves ajenas de cada relación.
+
+
+3) Dadas las siguientes tablas:
+Empleados (cod_emp, nombre, apellido, tipo_doc, num_doc, categoria, cod_ofic)
+Oficinas (cod_ofic, descripción)
+
+
+CREATE TABLE EMPLEADOS (
+    cod_emp INT NOT NULL,
+    nombre VARCHAR(20),
+    apellido VARCHAR(20),
+    tipo_doc INT,
+    num_doc INT,
+    categoria VARCHAR(20),
+    cod_ofic INT,
+    CONSTRAINT pk_empleados PRIMARY KEY (cod_emp),
+    CONSTRAINT uk_tipo_doc UNIQUE (tipo_doc),
+    CONSTRAINT uk_num_doc UNIQUE (num_doc),
+    CONSTRAINT ck_categoria CHECK (categoria IN ('Senior', 'Semisenior', 'Junior')),
+    CONSTRAINT ck_cod_emp CHECK (cod_emp > 100 AND cod_emp < 1000),
+    CONSTRAINT fk_empleados_cod_ofic FOREIGN KEY (cod_ofic) REFERENCES oficinas(cod_ofic)
+);
+
+CREATE TABLE OFICINAS(
+cod_ofic INT NOT NULL,
+descripcion VARCHAR(20),
+CONSTRAINT pk_oficinas PRIMARY KEY(cod_ofic));
+
+Crear las siguientes reglas de integridad:
+ La columna cod_emp debe ser clave primaria.
+ La columna cod_emp debe tener valores entre 100 y 1000.
+ Las columnas tipo_doc y num_doc deben contener valores no repetidos (únicos).
+ La columna Categoria debe contener algunos de los siguientes valores: Senior, Semi Senior,
+Junior.
+ La columna cod_ofic debe tener valores que existan en la tabla Oficinas.
+
+
+select p.descripcion, (punto_reposicion-stock_cantidad) as cantidad_a_comprar,
+f.razon_social
+from productos as p, fabricantes as f
+where stock_cantidad < punto_reposicion and p.cod_fabricante = f.cod_fabricante
+order by f.razon_social, p.descripcion
+
+
+(matricula + area + referencia) | (oficio+referencia)  
+
+area = cirugia | odontologia | radiologia | oncologia | cardiologia | dermatologia | nutricionista
+oficio = paseador | peluqueria | entrenador | guarderia
