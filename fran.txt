@@ -1,5 +1,5 @@
 SELECT descripcion as producto, precio as precioCosto , (precio*1.21) as precioIVA 
-FROM productos
+FROM productossssssssssssss
 
 SELECT apellido, nombre, (), (2023-09-fecha_nacimiento)
 
